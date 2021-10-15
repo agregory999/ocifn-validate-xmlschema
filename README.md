@@ -53,7 +53,10 @@ The PAR Folder will look like this:
 ```
 https://objectstorage.us-ashburn-1.oraclecloud.com/p/eXOqEaDqtIH3AaelaBuNK4gxfaI721tXS1RwSP3JqQcURGdVxz3qpYAojJsfg-ZZ/n/orasenatdpltintegration01/b/xmlschema/o/
 ```
-Simply add the file name to the end to form a fully qualified path for an XSD. 
+Simply add the file name to the end to form a fully qualified path for an XSD that is in that bucket.
+
+Bucket Contents:
+![Bucket Contents](images/Bucket_Contents.png)
 
 ## Invocation Examples (command line)
 
