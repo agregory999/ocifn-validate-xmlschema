@@ -69,7 +69,7 @@ These are Pre-Authenticated Requests (PARs) from Oracle Cloud Storage - bucket "
 ```bash
 {"inputXML":"https://objectstorage.us-ashburn-1.oraclecloud.com/p/eXOqEaDqtIH3AaelaBuNK4gxfaI721tXS1RwSP3JqQcURGdVxz3qpYAojJsfg-ZZ/n/orasenatdpltintegration01/b/xmlschema/o/report_e.xml","inputXSD":"https://objectstorage.us-ashburn-1.oraclecloud.com/p/eXOqEaDqtIH3AaelaBuNK4gxfaI721tXS1RwSP3JqQcURGdVxz3qpYAojJsfg-ZZ/n/orasenatdpltintegration01/b/xmlschema/o/report.xsd"}
 ```
-# Using Base64 encoding with HERE-doc
+### Using Base64 encoding with HERE-doc
 Here we take XML and XSD and export them into Base64 strings, then pass them into the function
 
 ```bash
@@ -80,7 +80,7 @@ cat <<EOF | fn invoke FunctionsApp xmlschema-validation
 {"base64InputXML":"${XML}","inputXSD":"https://objectstorage.us-ashburn-1.oraclecloud.com/p/eXOqEaDqtIH3AaelaBuNK4gxfaI721tXS1RwSP3JqQcURGdVxz3qpYAojJsfg-ZZ/n/orasenatdpltintegration01/b/xmlschema/o/report.xsd"}
 EOF
 ```
-# Using a combo - you can send in base64-encoded XML with a URL to XSD
+### Using a combo - you can send in base64-encoded XML with a URL to XSD
 ```bash
 cat <<EOF | fn invoke FunctionsApp xmlschema-validation
 {"base64InputXML":"${XML}","inputXSD":"https://objectstorage.us-ashburn-1.oraclecloud.com/p/eXOqEaDqtIH3AaelaBuNK4gxfaI721tXS1RwSP3JqQcURGdVxz3qpYAojJsfg-ZZ/n/orasenatdpltintegration01/b/xmlschema/o/report.xsd"}
@@ -117,3 +117,33 @@ Success:
 Failure:
 
 ![OIC Connection](images/OIC_Failure.png)
+
+## Debugging
+
+To get more detail from the function, add the configuration for DEBUG to the function:
+
+![Debug](images/Function_Config.png)
+
+The output will change accordingly:
+
+```
+argregor@argregor-mac examples % export XML=$(cat shiporder.xml|base64)
+argregor@argregor-mac examples % cat <<EOF | fn invoke FunctionsApp oci-validate-xmlschema
+{"base64InputXML":"${XML}","inputXSD":"https://objectstorage.us-ashburn-1.oraclecloud.com/p/eXOqEaDqtIH3AaelaBuNK4gxfaI721tXS1RwSP3JqQcURGdVxz3qpYAojJsfg-ZZ/n/orasenatdpltintegration01/b/xmlschema/o/shiporder.xsd"}
+EOF
+{"verified":true,"detail":"Parsed ok:"}
+```
+with debug:
+```
+argregor@argregor-mac examples % cat <<EOF | fn invoke FunctionsApp oci-validate-xmlschema
+{"base64InputXML":"${XML}","inputXSD":"https://objectstorage.us-ashburn-1.oraclecloud.com/p/eXOqEaDqtIH3AaelaBuNK4gxfaI721tXS1RwSP3JqQcURGdVxz3qpYAojJsfg-ZZ/n/orasenatdpltintegration01/b/xmlschema/o/shiporder.xsd"}
+EOF
+
+{"verified":true,"detail":"Parsed ok:Schema Doc: oracle.xml.parser.schema.XMLSchema@96def03XML from Base64:<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n\n<shiporder orderid=\"889923\"\nxmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\nxsi:noNamespaceSchemaLocation=\"shiporder.xsd\">\n  <orderperson>John Smith</orderperson>\n  <shipto>\n    <name>Ola Nordmann</name>\n    <address>Langgt 23</address>\n    <city>4000 Stavanger</city>\n    <country>Norway</country>\n  </shipto>\n  <item>\n    <title>Empire Burlesque</title>\n    <note>Special Edition</note>\n    <quantity>1</quantity>\n    <price>10.90</price>\n  </item>\n  <item>\n    <title>Hide your heart</title>\n    <quantity>1</quantity>\n    <price>9.90</price>\n  </item>\n</shiporder>\n"}
+```
+
+When changing code, add the following to enable debug for a particular line of code (example):
+
+```
+            if (debug) messages.append("Schema Doc: " + schemadoc.toString());
+```
